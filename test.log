@@ -1,0 +1,112 @@
+2022/10/23 10:54:26 main.go:465: Exit open dddd: no such file or directory
+2022/10/23 11:16:20 main.go:481: logging
+2022/10/23 11:16:20 main.go:482: string test
+2022/10/23 11:16:20 main.go:485: string test
+2022/10/23 11:17:26 main.go:477: Exit open dddd: no such file or directory
+2022/10/23 11:17:39 main.go:477: Exit open dddd: no such file or directory
+2022/10/23 13:08:58 main.go:484: Exit open dddd: no such file or directory
+2022/10/23 13:09:13 main.go:488: logging
+2022/10/23 13:09:13 main.go:489: string test
+2022/10/23 13:09:13 main.go:492: string test
+2022/10/23 13:09:32 main.go:488: logging
+2022/10/23 13:09:32 main.go:489: string test
+2022/10/23 13:18:06 main.go:489: logging
+2022/10/23 13:18:06 main.go:490: string test
+2022/10/23 13:18:06 main.go:515: Error
+2022/10/23 13:18:49 main.go:489: logging
+2022/10/23 13:18:49 main.go:490: string test
+2022/10/23 13:18:49 main.go:520: Error
+2022/10/23 13:18:57 main.go:489: logging
+2022/10/23 13:18:57 main.go:490: string test
+2022/10/23 13:20:44 main.go:489: logging
+2022/10/23 13:20:44 main.go:490: string test
+2022/10/23 13:53:46 main.go:492: logging
+2022/10/23 13:53:46 main.go:493: string test
+2022/10/23 13:56:00 main.go:491: logging
+2022/10/23 13:56:00 main.go:492: string test
+2022/10/23 14:03:26 main.go:491: logging
+2022/10/23 14:03:26 main.go:492: string test
+2022/10/23 14:06:54 main.go:494: logging
+2022/10/23 14:06:54 main.go:495: string test
+2022/10/23 14:07:05 main.go:494: logging
+2022/10/23 14:07:05 main.go:495: string test
+2022/10/23 14:13:39 main.go:494: logging
+2022/10/23 14:13:39 main.go:495: string test
+2022/10/23 14:14:44 main.go:494: logging
+2022/10/23 14:14:44 main.go:495: string test
+2022/10/23 14:15:16 main.go:494: logging
+2022/10/23 14:15:16 main.go:495: string test
+2022/10/23 20:34:21 main.go:494: logging
+2022/10/23 20:34:21 main.go:495: string test
+2022/10/23 20:35:19 main.go:494: logging
+2022/10/23 20:35:19 main.go:495: string test
+2022/10/23 20:39:47 main.go:494: logging
+2022/10/23 20:39:47 main.go:495: string test
+2022/10/23 20:41:26 main.go:494: logging
+2022/10/23 20:41:26 main.go:495: string test
+2022/10/23 20:45:26 main.go:494: logging
+2022/10/23 20:45:26 main.go:495: string test
+2022/10/23 20:45:45 main.go:494: logging
+2022/10/23 20:45:45 main.go:495: string test
+2022/10/23 20:57:27 main.go:494: logging
+2022/10/23 20:57:27 main.go:495: string test
+2022/10/23 20:58:25 main.go:494: logging
+2022/10/23 20:58:25 main.go:495: string test
+2022/10/23 20:58:51 main.go:494: logging
+2022/10/23 20:58:51 main.go:495: string test
+2022/10/23 20:59:25 main.go:494: logging
+2022/10/23 20:59:25 main.go:495: string test
+2022/10/23 20:59:46 main.go:494: logging
+2022/10/23 20:59:46 main.go:495: string test
+2022/10/23 21:02:02 main.go:494: logging
+2022/10/23 21:02:02 main.go:495: string test
+2022/10/23 21:03:04 main.go:494: logging
+2022/10/23 21:03:04 main.go:495: string test
+2022/10/23 21:05:46 main.go:494: logging
+2022/10/23 21:05:46 main.go:495: string test
+2022/10/23 21:08:42 main.go:494: logging
+2022/10/23 21:08:42 main.go:495: string test
+2022/10/23 21:10:05 main.go:494: logging
+2022/10/23 21:10:05 main.go:495: string test
+2022/10/23 21:12:04 main.go:494: logging
+2022/10/23 21:12:04 main.go:495: string test
+2022/10/23 21:40:26 main.go:494: logging
+2022/10/23 21:40:26 main.go:495: string test
+2022/10/23 21:40:45 main.go:494: logging
+2022/10/23 21:40:45 main.go:495: string test
+2022/10/29 14:55:21 main.go:495: logging
+2022/10/29 14:55:21 main.go:496: string test
+2022/10/29 15:02:43 main.go:495: logging
+2022/10/29 15:02:43 main.go:496: string test
+2022/10/29 15:03:01 main.go:495: logging
+2022/10/29 15:03:01 main.go:496: string test
+2022/10/29 15:17:50 main.go:495: logging
+2022/10/29 15:17:50 main.go:496: string test
+2022/10/29 15:26:49 main.go:495: logging
+2022/10/29 15:26:49 main.go:496: string test
+2022/10/29 15:27:02 main.go:495: logging
+2022/10/29 15:27:02 main.go:496: string test
+2022/10/29 15:37:14 main.go:495: logging
+2022/10/29 15:37:14 main.go:496: string test
+2022/10/29 16:05:41 main.go:495: logging
+2022/10/29 16:05:41 main.go:496: string test
+2022/10/29 16:06:28 main.go:495: logging
+2022/10/29 16:06:28 main.go:496: string test
+2022/10/29 16:13:22 main.go:495: logging
+2022/10/29 16:13:22 main.go:496: string test
+2022/10/29 16:14:32 main.go:495: logging
+2022/10/29 16:14:32 main.go:496: string test
+2022/10/29 16:20:17 main.go:495: logging
+2022/10/29 16:20:17 main.go:496: string test
+2022/10/29 16:21:49 main.go:495: logging
+2022/10/29 16:21:49 main.go:496: string test
+2022/10/29 16:22:20 main.go:495: logging
+2022/10/29 16:22:20 main.go:496: string test
+2022/10/29 16:23:09 main.go:495: logging
+2022/10/29 16:23:09 main.go:496: string test
+2022/10/29 16:33:25 main.go:495: logging
+2022/10/29 16:33:25 main.go:496: string test
+2022/10/29 16:35:15 main.go:495: logging
+2022/10/29 16:35:15 main.go:496: string test
+2022/10/29 16:35:44 main.go:495: logging
+2022/10/29 16:35:44 main.go:496: string test
