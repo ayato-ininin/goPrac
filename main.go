@@ -30,6 +30,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"sync"
 )
 
 const (
@@ -43,6 +44,7 @@ func main() {
 	section4()
 	section5()
 	section6()
+	section7()
 }
 
 /*
@@ -937,4 +939,271 @@ func question6()  {
 	v:= VertexPrac{3,4}
 	fmt.Println(v.Plus())
 	fmt.Println(v)
+}
+
+/*
+goroutine(軽量のスレッド、並列処理のこと)
+*/
+func section7()  {
+	fmt.Println("section7====================================================")
+	goroutinePrac()
+	channelPrac()
+	bufferedChannelPrac()
+	rangeAndClose()
+	producerAndConsumer()
+	fanoutFanin()
+	//channelAndSelect()
+	defaultSelection()
+	mutexPrac()
+}
+
+func normal(s string)  {
+	for i := 0; i<5;i++ {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Println(s)
+	}
+}
+
+func goroutine(s string, wg *sync.WaitGroup)  {
+	defer wg.Done()
+	for i := 0; i<5;i++ {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Println(s)
+	}
+}
+
+func goroutinePrac()  {
+	var wg sync.WaitGroup
+	wg.Add(1)//goroutineのカウントを増やす
+	go goroutine("world", &wg)
+	normal("hello")
+	wg.Wait()//goroutineのdoneを待つ
+}
+
+/*
+チャネルとは、
+goroutineとmain関数の間でのデータのやり取りに使用する。
+goroutineはスレッドが違うから普通ではデータがやり取りできない。
+*/
+func channelPrac()  {
+	s := []int{1,2,3,4,5}
+	c := make(chan int)//複数でも使える。15,15...
+	go goroutine1(s,c)
+	x := <-c //チャネルから受け取る。sumが入るまでずっと待ってる。
+	fmt.Println(x)
+	go goroutine2(s,c)
+	y := <-c //チャネルから受け取る。sumが入るまでずっと待ってる。
+	fmt.Println(y)
+}
+
+func goroutine1(s []int, c chan int)  {
+	sum := 0
+	for _,v := range s{
+		sum += v
+	}
+	c <- sum//チャネルにデータを送信するという意味
+}
+
+func goroutine2(s []int, c chan int)  {
+	sum := 0
+	for _,v := range s{
+		sum += v
+	}
+	c <- sum//チャネルにデータを送信するという意味
+}
+
+func bufferedChannelPrac()  {
+	ch := make(chan int , 2)//channelのバッファ数を決めれる。
+	ch <- 100
+	fmt.Println(len(ch))
+	ch <- 200
+	fmt.Println(len(ch))
+
+	close(ch)//これがないと、二個以上rangeが読み込んでしまう。チャネルの終了を伝える
+	for c := range ch{
+		fmt.Println(c)
+	}
+}
+
+/*
+随時値をチャネルで送る。
+*/
+func rangeAndClose()  {
+	s := []int{1,2,3,4,5}
+	c := make(chan int, len(s))//複数でも使える。15,15...
+	go goroutine3(s,c)
+	for i := range c {
+		fmt.Println(i)
+	}
+}
+
+func goroutine3(s []int, c chan int)  {
+	sum := 0
+	for _,v := range s{
+		sum += v
+		c <- sum//チャネルにデータを送信するという意味
+	}
+	close(c)
+}
+
+//チャネルにいれていく
+func producer(ch chan int , i int)  {
+	//なにか処理をして、チャネルに渡す。
+	ch <- i * 2
+}
+
+//チャネルに入ったものを処理する。
+func consumer(ch chan int, wg *sync.WaitGroup)  {
+	for i := range ch{
+		fmt.Println("Process", i* 1000)
+		wg.Done()
+		//funcがエラーなく終わって大丈夫なように
+		// func ()  {
+		// 	defer wg.Done()
+		// 	fmt.Println("Process", i* 1000)
+		// }()
+	}
+}
+
+func producerAndConsumer()  {
+	var wg sync.WaitGroup
+	ch := make(chan int)
+
+	//producer
+	for i := 0; i<10; i++ {
+		wg.Add(1)
+		go producer(ch,i)
+	}
+
+	//consumer
+	go consumer(ch, &wg)
+	wg.Wait()//全てのwg.Doneが完了するのを待つ。
+	close(ch)//consumerのrangeにchが終わったのを伝える。
+}
+
+func producer1(first chan int)  {
+	defer close(first)
+	for i := 0; i<10; i++ {
+		first <- i
+	}
+}
+
+func multi2(first <-chan int, second chan<- int)  {
+	defer close(second)
+	for i:= range first{
+		second <- i*2
+	}
+}
+
+func multi4(second <-chan int, third chan<- int)  {
+	defer close(third)
+	for i:= range second{
+		third <- i*4
+	}
+}
+
+//結果をステージごとに処理をしていくことが
+//fanin fanout
+func fanoutFanin()  {
+	first := make(chan int)
+	second := make(chan int)
+	third := make(chan int)
+
+	go producer1(first)
+	go multi2(first, second)
+	go multi4(second, third)
+
+	for result := range third {
+		fmt.Println(result)
+	}
+}
+
+func channelAndSelect()  {
+	c1 := make(chan string)
+	c2 := make(chan string)
+	go goroutineA(c1)
+	go goroutineB(c2)
+
+	for {
+		select {
+		case msg1:= <- c1:
+			fmt.Println(msg1)
+		case msg2:= <- c2:
+			fmt.Println(msg2)
+		}
+	}
+}
+
+func goroutineA(ch chan string)  {
+	for {
+		ch <- "packet from 1"
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func goroutineB(ch chan string)  {
+	for {
+		ch <- "packet from 2"
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func defaultSelection()  {
+	tick := time.Tick(100 * time.Millisecond)//チャネルを返す
+	boom := time.After(500 * time.Millisecond)//チャネルを返す
+	for {
+		select {
+		case <-tick:
+			fmt.Println("tick.")
+		case <-boom:
+			fmt.Println("BOOM!")
+			return
+		default:
+			fmt.Println("    .")
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+}
+
+/*
+同じcのkeyに同時にgoroutineで値を入れてるから、
+たまにエラーが出る。同時に書き込みが行われるから。
+*/
+func mutexPrac()  {
+	//c:= make(map[string]int)
+	c:= Counter{v: make(map[string]int)}
+	go func ()  {
+		for i := 0; i<10;i++{
+			//c["key"] += 1
+			c.Inc("key")
+		}
+	}()
+
+	go func ()  {
+		for i := 0; i<10;i++{
+			//c["key"] += 1
+			c.Inc("key")
+		}
+	}()
+
+	time.Sleep(1 * time.Second)
+	fmt.Println(c,c.Value("key"))
+}
+
+type Counter struct{
+	v map[string]int
+	mux sync.Mutex
+}
+
+//いわゆる排他制御??
+func (c *Counter) Inc(key string) {
+	c.mux.Lock()
+	c.v[key]++
+	c.mux.Unlock()
+}
+
+func (c *Counter) Value(key string)  int{
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	return c.v[key]
 }
