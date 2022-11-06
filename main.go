@@ -23,7 +23,10 @@ package main
 //標準ライブラリのdocument
 import (
 	//アルファベット順
+	"bytes"
+	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"io"
 	"os"
@@ -31,8 +34,10 @@ import (
 	"strings"
 	"time"
 	"sync"
-	"github.com/markcheno/go-quote"
-	"github.com/markcheno/go-talib"
+	"sort"
+	"regexp"
+	_ "github.com/markcheno/go-quote"
+	_ "github.com/markcheno/go-talib"
 )
 
 //module配下の指定が必要
@@ -51,6 +56,7 @@ func main() {
 	section6()
 	section7()
 	section8()
+	section9()
 }
 
 /*
@@ -1225,8 +1231,136 @@ func section8()  {
 
 	//go get github.com/markcheno/go-talib
 	//↑サードパーティのパッケージダウンロード
-	spy, _ := quote.NewQuoteFromYahoo("spy", "2016-01-01", "2016-04-01", quote.Daily, true)
-	fmt.Print(spy.CSV())
-	rsi2 := talib.Rsi(spy.Close, 2)
-	fmt.Println(rsi2)
+	// spy, _ := quote.NewQuoteFromYahoo("spy", "2016-01-01", "2016-04-01", quote.Daily, true)
+	// fmt.Print(spy.CSV())
+	// rsi2 := talib.Rsi(spy.Close, 2)
+	// fmt.Println(rsi2)
+}
+
+//便利な標準パッケージ
+func section9()  {
+	fmt.Println("section9====================================================")
+	timePrac()
+	regexPrac()
+	sortPrac()
+	iotaPrac()
+	contextPrac()
+	ioutilPrac()
+}
+
+//https://pkg.go.dev/time
+//↑ドキュメント、godoc
+func timePrac()  {
+	//RFC3339     = "2006-01-02T15:04:05Z"→ZはUTCという意味
+	//RFC3339     = "2006-01-02T15:04:05 Z or 07:00"
+	t := time.Now()
+	fmt.Println(t)
+	fmt.Println(t.Format(time.RFC3339))//rfc3339にフォーマッティング
+}
+
+func regexPrac()  {
+	//はじめの文字がaで最後がe,その間がa-zで一個以上あるものがヒット。アンスコはエラーは今回不要だから。
+	match, _ := regexp.MatchString("a([a-z]+)e", "apple")
+	fmt.Println(match)
+
+	r := regexp.MustCompile("a([a-z]+)e")//複数使う場合は、これで定義。
+	ms := r.MatchString("apple")
+	fmt.Println(ms)
+
+	//s := "/view/test"
+	r2:=regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+	fs := r2.FindString("/view/test")
+	fmt.Println(fs)
+	fss := r2.FindStringSubmatch("/view/test")
+	fmt.Println(fss,fss[0],fss[1],fss[2])
+}
+
+func sortPrac()  {
+	i := []int{5,3,2,8,7}
+	s := []string{"d","a","f"}
+	p := []struct{
+		Name string
+		Age int
+	}{
+		{"Namcy",20},
+		{"Vera",40},
+		{"Mike",50},
+		{"Bob",60},
+	}
+	fmt.Println(i,s,p)
+	sort.Ints(i)
+	sort.Strings(s)
+	sort.Slice(p,func (i, j int) bool {return p[i].Name < p[j].Name})
+	fmt.Println(i,s,p)
+}
+
+const(
+	c1 = iota
+	c2 = iota
+	c3 = iota
+)
+
+//https://qiita.com/pon_maeda/items/462751cda0d4b791cccb
+/*
+iotaは一回書けば、下に書かなくていい。
+10^3 = 2^10 = KB
+10^6 = 2^20 = MB
+10^9 = 2^30 = GB
+2進数だと1024倍ずつでケタが上がる。
+*/
+const (
+	_ = iota//0、使わないからアンスコ
+	KB int = 1 << (10*iota)//2の10乗→1024
+	MB
+	GB
+)
+//constの連番をふる・
+func iotaPrac()  {
+	fmt.Println(c1,c2,c3)
+	fmt.Println(KB,MB,GB)
+}
+
+func longProcess(ctx context.Context,ch chan string)  {
+	fmt.Println("run")
+	time.Sleep(2* time.Second)
+	fmt.Println("finish")
+	ch <- "result"
+}
+
+//goroutineとかがあまりに長すぎたときにはキャンセルできる。
+//goroutineのtimeout!!!
+func contextPrac()  {
+	ch := make(chan string)
+	ctx := context.Background()
+	ctx,cancel := context.WithTimeout(ctx, 1 * time.Second)//ctxにタイムアウトをつけて、またctxに入れてる。
+	defer cancel()
+	go longProcess(ctx,ch)
+
+	for {
+		select {
+		case <- ctx.Done():
+			fmt.Println(ctx.Err())
+			return
+		case <- ch:
+			fmt.Println("success")
+			return
+		}
+	}
+}
+
+func ioutilPrac()  {
+	// content, err := ioutil.ReadFile("main.go")
+	// if err != nil{
+	// 	log.Fatalln(err)
+	// }
+	// fmt.Println(string(content))
+
+	// if err := ioutil.WriteFile("ioutil_temp.go", content,0666); err != nil{
+	// 	log.Fatalln(err)
+	// }
+
+	//ネットワークから来たデータを一度バイトで持っておいて、あとから読み込む。
+	r := bytes.NewBuffer([]byte("abc"))
+	content, _ := ioutil.ReadAll(r)
+	fmt.Println(string(content))
 }
