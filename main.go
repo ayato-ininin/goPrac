@@ -31,7 +31,12 @@ import (
 	"strings"
 	"time"
 	"sync"
+	"github.com/markcheno/go-quote"
+	"github.com/markcheno/go-talib"
 )
+
+//module配下の指定が必要
+import "fintechApp/mylib"
 
 const (
 	Pi   = 3.14 // コンストは基本グローバルだそう。
@@ -45,6 +50,7 @@ func main() {
 	section5()
 	section6()
 	section7()
+	section8()
 }
 
 /*
@@ -1206,4 +1212,21 @@ func (c *Counter) Value(key string)  int{
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.v[key]
+}
+
+//packageの自作
+func section8()  {
+	fmt.Println("section8====================================================")
+	s := []int{1,2,3,4,5}
+	fmt.Println(mylib.Average(s))
+	mylib.Say()//human.goでもmylibとして呼び出せる！！
+	person:= mylib.Person{Name: "Mike", Age: 20}
+	fmt.Println(person)
+
+	//go get github.com/markcheno/go-talib
+	//↑サードパーティのパッケージダウンロード
+	spy, _ := quote.NewQuoteFromYahoo("spy", "2016-01-01", "2016-04-01", quote.Daily, true)
+	fmt.Print(spy.CSV())
+	rsi2 := talib.Rsi(spy.Close, 2)
+	fmt.Println(rsi2)
 }
