@@ -27,6 +27,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/json"
 	"encoding/hex"
 	"fmt"
@@ -46,6 +47,7 @@ import (
 	_ "github.com/markcheno/go-talib"
 	"github.com/gorilla/websocket"
 	"golang.org/x/sync/semaphore"
+	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/ini.v1"
 )
 
@@ -68,6 +70,7 @@ func main() {
 	section9()
 	section10()
 	section11()
+	section12()
 }
 
 /*
@@ -1468,7 +1471,7 @@ func section11()  {
 	semaphorePrac()//ごルーチンの同時実行数を制御する。セマフォ。
 	iniPrac()//configの設定ファイルを読み込むパッケージ
 	talibPrac()//株価分析
-	websocketPrac()
+	//websocketPrac()
 }
 
 var s *semaphore.Weighted = semaphore.NewWeighted(1)//ごルーチンの最大実行数
@@ -1571,3 +1574,77 @@ func websocketPrac()  {
 		}
 	}
 }
+
+//DB操作
+func section12()  {
+	DbConnection, _ := sql.Open("sqlite3", "./example.sql")
+	defer DbConnection.Close()
+	cmd := `CREATE TABLE IF NOT EXISTS person(
+							name STRING,
+							age INT)`
+	_,err := DbConnection.Exec(cmd)
+	if err !=nil {
+		log.Fatalln(err)
+	}
+
+	// cmd = "INSERT INTO person (name, age) VALUES (?,?)"
+	// _ ,err = DbConnection.Exec(cmd,"Nancy",20)
+	// if err != nil{
+	// 	log.Fatalln(err)
+	// }
+
+	// cmd = "UPDATE person SET age = ? WHERE name = ?"
+	// _, err = DbConnection.Exec(cmd,20,"Nancy")
+	// if err !=nil {
+	// 	log.Fatalln(err)
+	// }
+
+	//マルチプルセレクト
+	// cmd = "SELECT * FROM person"
+	// rows, _ := DbConnection.Query(cmd)
+	// defer rows.Close()
+	// var pp []P
+	// for rows.Next(){
+	// 	var p P
+	// 	err := rows.Scan(&p.Name,&p.Age)
+	// 	if err != nil{
+	// 		log.Println(err)
+	// 	}
+	// 	pp = append(pp,p)
+	// }
+	// for _,p := range pp{
+	// 	fmt.Println(p.Name,p.Age)
+	// }
+
+	//シングルセレクト
+	// cmd = "SELECT * FROM person where age = ?"
+	// row := DbConnection.QueryRow(cmd, 20)
+	// var p P
+	// err = row.Scan(&p.Name,&p.Age)
+	// if err != nil{
+	// 	if err == sql.ErrNoRows{
+	// 		log.Println("no row")
+	// 	} else {
+	// 		log.Println(err)
+	// 	}
+	// }
+	// fmt.Println(p.Name,p.Age)
+
+	// cmd = "DELETE FROM person WHERE name = ?"
+	// _, err = DbConnection.Exec(cmd,"Nancy")//結果がいらないからExec
+	// if err !=nil {
+	// 	log.Fatalln(err)
+	// }
+
+	tableName := "person"
+	cmd = fmt.Sprintf("SELECT * FROM %s", tableName)// tableには?が使えない。
+	/*
+	なぜtable名は代入ができないのか。
+	もしtableがuserから指定できた場合、sqlインジェクションの危険性がある。
+	tableName := "person; INSERT INTO person (name,age) VALUES ('誰か',"何歳か")"
+	これは結構危険。sqlを書き換えられうるから,VALUESとかで?
+	を使うのも、それをエスケープしてくれるというのがあるので、?は使った方がいい。
+	*/
+}
+
+var DbConnection *sql.DB
