@@ -25,9 +25,15 @@ import (
 	//アルファベット順
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/json"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"io"
 	"os"
 	"strconv"
@@ -57,6 +63,7 @@ func main() {
 	section7()
 	section8()
 	section9()
+	section10()
 }
 
 /*
@@ -1363,4 +1370,91 @@ func ioutilPrac()  {
 	r := bytes.NewBuffer([]byte("abc"))
 	content, _ := ioutil.ReadAll(r)
 	fmt.Println(string(content))
+}
+
+func section10()  {
+	fmt.Println("section10====================================================")
+	httpPrac()
+	jsonMarshalAndEncode()
+	hmacPrac()
+}
+
+func httpPrac()  {
+	// resp, _ := http.Get("http://example.com")
+	// defer resp.Body.Close()
+	// body, _ := ioutil.ReadAll(resp.Body)
+	// fmt.Println(string(body))
+
+	base, _ := url.Parse("http://example.com")//正しいurlかを確認できる。
+	reference, _ := url.Parse("/test?a=1&b=2")
+	endpoint := base.ResolveReference(reference).String()
+	fmt.Println(endpoint)
+
+	req ,_ := http.NewRequest("GET", endpoint, nil)
+	req.Header.Add("If-None-Match", `W/wyzzy`)
+	q := req.URL.Query()
+	q.Add("c","3")//クエリを追加
+	fmt.Println(q.Encode())
+	fmt.Println(q)
+	req.URL.RawQuery = q.Encode()
+
+	// var client *http.Client = &http.Client{}
+	// resp,_ := client.Do(req)
+	// body,_ := ioutil.ReadAll(resp.Body)
+	// fmt.Println(string(body))
+}
+
+//jsonにmarshalしたときの表示も指定できる、
+type P struct {
+	Name string 				`json:"name"`
+	//Name string 				`json:"-"`→ハイフンにすると非表示
+	Age int 						`json:"age"`
+	//Age int 						`json:"age,omitempty"`→空とか0のときは非表示にできる。
+	Nicknames []string  `json:"nicknames"`
+	T *T								`json:"T,omitempty"`//構造体なら、ポインタにする。nilが入る
+}
+
+type T struct{}
+
+func jsonMarshalAndEncode()  {
+	//下記のようなjsonのバイトデータがネットワークから来たとする。
+	b := []byte(`{"name":"mike","age":20,"nicknames":["a","b","c"]}`)
+
+	var p P
+	//structのキーをみて、ネットワークから来たデータを構造体に入れてくれるのがUnmarshal。小文字でも判断してくれる。
+	if err := json.Unmarshal(b,&p); err != nil{
+		fmt.Println(err)
+	}
+	fmt.Println(p.Name,p.Age,p.Nicknames)
+
+	v,_ := json.Marshal(p)//逆にjsonに変換する
+	fmt.Println(string(v))//バイトのデータやから、stringでキャストして表示
+}
+
+var DB = map[string]string{
+	"User1Key": "User1secret",
+	"User2Key": "User2secret",
+}
+
+func Server(apiKey, sign string, data []byte)  {
+	apiSecret := DB[apiKey]
+	h := hmac.New(sha256.New, []byte(apiSecret))
+	h.Write(data)
+	expectedHMAC := hex.EncodeToString(h.Sum(nil))
+	fmt.Println(sign == expectedHMAC)
+}
+
+//ログイン認証のhash化などに使われる。クライアントとサーバーが正しい値化を確認。
+func hmacPrac()  {
+	const apiKey = "User1Key"
+	const apiSecret = "User1secret"
+
+	data := []byte("data")
+	h := hmac.New(sha256.New, []byte(apiSecret))
+	h.Write(data)
+	sign := hex.EncodeToString(h.Sum(nil))
+	fmt.Println(sign)
+
+	Server(apiKey, sign,data)
+
 }
